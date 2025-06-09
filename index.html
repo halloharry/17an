@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Pendaftaran Lomba 17an</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow rounded-4 p-4">
+        <h2 class="mb-4 text-center">Form Pendaftaran Lomba 17an</h2>
+
+        <form action="https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse" method="POST" target="_blank">
+
+            <div class="mb-3">
+                <label class="form-label">Nama Lengkap</label>
+                <input type="text" name="entry.1234567890" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Usia</label>
+                <input type="number" name="entry.2345678901" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">RT</label>
+                <select name="entry.3456789012" class="form-select" required>
+                    <option value="">-- Pilih RT --</option>
+                    <option value="RT 01">RT 01</option>
+                    <option value="RT 02">RT 02</option>
+                    <option value="RT 03">RT 03</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Lomba yang Diikuti</label>
+                <select name="entry.4567890123" class="form-select" required>
+                    <option value="">-- Pilih Lomba --</option>
+                    <option value="Balap Karung">Balap Karung</option>
+                    <option value="Makan Kerupuk">Makan Kerupuk</option>
+                    <option value="Tarik Tambang">Tarik Tambang</option>
+                    <option value="Kelereng">Kelereng</option>
+                    <option value="Lomba Karaoke">Lomba Karaoke</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">No HP (Opsional)</label>
+                <input type="text" name="entry.5678901234" class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Kirim Pendaftaran</button>
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>
