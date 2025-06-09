@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Form Pendaftaran Lomba 17an</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -99,7 +99,8 @@
 
             <div class="mb-3">
                 <label class="form-label">Usia</label>
-                <input type="number" name="entry.107278371" class="form-control" required min="1" max="99" oninput="this.value = this.value.slice(0, 2)">
+                <input type="number" name="entry.107278371" class="form-control" required min="1" max="99"
+                       oninput="this.value = this.value.slice(0, 2)">
             </div>
 
             <div class="mb-3">
@@ -128,15 +129,19 @@
 
             <div class="mb-3">
                 <label class="form-label">No HP (Opsional)</label>
-                <input type="text" name="entry.1311942718" class="form-control" pattern="^\d{10,14}$" minlength="10" maxlength="14" placeholder="Contoh: 081234567890">
+                <input type="text" name="entry.1311942718" class="form-control" pattern="^\d{10,14}$" minlength="10"
+                       maxlength="14" placeholder="Contoh: 081234567890">
             </div>
 
             <button type="submit" class="btn btn-danger w-100 fw-bold">Kirim Pendaftaran</button>
         </form>
 
         <div id="pesanBerhasil" class="alert alert-success mt-4 d-none text-center fw-bold">
-            🎉 Terima kasih sudah mendaftar! Sampai jumpa di hari H!
+            🎉 Terima kasih sudah mendaftar! Sampai jumpa di hari H !
+            <br>
+            <a id="whatsappLink" href="#" class="btn btn-success mt-3" target="_blank">Konfirmasi via WhatsApp</a>
         </div>
+
 
         <div class="text-end mt-4">
             <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
@@ -146,7 +151,8 @@
 
 <footer class="d-flex justify-content-center align-items-center gap-3 p-3 bg-danger text-white mt-5 rounded-3 shadow-sm">
     <span>&copy; 2025 Pixel Playground Studio</span>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/Flag_of_Indonesia.svg" alt="Bendera Indonesia" height="30">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/Flag_of_Indonesia.svg" alt="Bendera Indonesia"
+         height="30">
 </footer>
 
 <script>
@@ -162,6 +168,21 @@
       }).then(() => {
         form.classList.add("d-none");
         document.getElementById("pesanBerhasil").classList.remove("d-none");
+
+        const nama = data.get("entry.2094351097"); // Nama
+        const lomba = data.get("entry.727121773"); // Lomba
+        const noHp = data.get("entry.1311942718"); // No HP
+
+        if (noHp) {
+            const nomorWa = noHp.replace(/^0/, '62'); // Ubah 08xx → 62xx
+            const pesan = `Halo ${nama}, kamu telah terdaftar dalam lomba ${lomba}. Sampai jumpa di acara 17an ya!`;
+            const waLink = `https://wa.me/${nomorWa}?text=${encodeURIComponent(pesan)}`;
+            document.getElementById("whatsappLink").href = waLink;
+            document.getElementById("whatsappLink").classList.remove("d-none");
+        } else {
+            document.getElementById("whatsappLink").classList.add("d-none");
+        }
+
       }).catch(() => {
         alert("Gagal mengirim. Coba lagi!");
       });
