@@ -41,7 +41,6 @@
     </style>
 
     <script>
-        // 🔐 Proteksi halaman - jika belum login, tampilkan form login
         if (localStorage.getItem("loggedIn") !== "true") {
           document.addEventListener("DOMContentLoaded", function () {
             document.body.innerHTML = `
@@ -89,7 +88,14 @@
 </header>
 
 <div class="container my-5">
-    <div class="card shadow-lg rounded-4 p-4 independence-banner">
+
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-outline-primary me-2" onclick="tampilkanForm()">📝 Formulir</button>
+        <button class="btn btn-outline-success" onclick="tampilkanPeserta()">📋 Lihat Peserta</button>
+    </div>
+
+
+    <div id="halamanForm" class="card shadow-lg rounded-4 p-4 independence-banner">
         <h2 class="mb-4 text-center text-danger">Formulir Pendaftaran</h2>
         <form id="lombaForm">
             <div class="mb-3">
@@ -142,11 +148,74 @@
             <a id="whatsappLink" href="#" class="btn btn-success mt-3" target="_blank">Konfirmasi via WhatsApp</a>
         </div>
 
-
         <div class="text-end mt-4">
             <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
         </div>
     </div>
+
+    <div id="halamanPeserta" class="card shadow rounded-4 p-4 d-none">
+        <h3 class="text-danger text-center mb-4">👥 Daftar Peserta Terdaftar</h3>
+        <h5 class="text-danger mb-3">Total Peserta Terdaftar: <span id="totalPeserta">...</span></h5>
+
+<!--        sorting -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label>Filter Usia:</label>
+                <select id="filterUsia" class="form-select">
+                    <option value="">Semua</option>
+                    <option value="3-6">3–6 tahun</option>
+                    <option value="7-9">7–9 tahun</option>
+                    <option value="10-12">10–12 tahun</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Filter RT:</label>
+                <select id="filterRT" class="form-select">
+                    <option value="">Semua</option>
+                    <option value="RT 01">RT 01</option>
+                    <option value="RT 02">RT 02</option>
+                    <option value="RT 03">RT 03</option>
+                    <option value="RT 04">RT 04</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Filter Lomba:</label>
+                <select id="filterLomba" class="form-select">
+                    <option value="">Semua</option>
+                    <option value="Balap Karung">Balap Karung</option>
+                    <option value="Makan Kerupuk">Makan Kerupuk</option>
+                    <option value="Tarik Tambang">Tarik Tambang</option>
+                    <option value="Kelereng">Kelereng</option>
+                    <option value="Lomba Karaoke">Lomba Karaoke</option>
+                    <option value="Tidak Ikut Serta">Tidak Ikut Serta</option>
+                    <!-- Tambah jenis lainnya -->
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered" id="tabelPeserta">
+                <thead class="table-danger">
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Usia</th>
+                    <th>RT</th>
+                    <th>Lomba</th>
+                    <th>No HP</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn">⏮ Prev</button>
+            <span id="pageInfo" class="fw-bold"></span>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn">Next ⏭</button>
+        </div>
+    </div>
+
+
 </div>
 
 <footer class="d-flex justify-content-center align-items-center gap-3 p-3 bg-danger text-white mt-5 rounded-3 shadow-sm">
@@ -192,6 +261,102 @@
       localStorage.removeItem("loggedIn");
       location.reload();
     }
+
+    function tampilkanForm() {
+    document.getElementById("halamanForm").classList.remove("d-none");
+    document.getElementById("halamanPeserta").classList.add("d-none");
+  }
+
+    let pesertaData = []; // Global
+    let currentPage = 1;
+    const perPage = 20;
+  function tampilkanPeserta() {
+  document.getElementById("halamanForm").classList.add("d-none");
+  document.getElementById("halamanPeserta").classList.remove("d-none");
+
+  if (pesertaData.length === 0) {
+    fetch("https://opensheet.elk.sh/19abpxwNFZCchAeGz8Hl2l3JQ4Hn6APU4IppksIGP59s/Form+Responses+1") // Ganti sesuai Sheet ID kamu
+      .then(res => res.json())
+      .then(data => {
+        pesertaData = data;
+        renderPage();
+      });
+  } else {
+    renderPage();
+  }
+
+  function renderPage() {
+  const tbody = document.querySelector("#tabelPeserta tbody");
+  tbody.innerHTML = "";
+
+  const usiaFilter = document.getElementById("filterUsia").value;
+  const rtFilter = document.getElementById("filterRT").value;
+  const lombaFilter = document.getElementById("filterLomba").value;
+  document.getElementById("totalPeserta").innerText = pesertaData.length;
+
+  // Filter peserta sesuai kriteria
+  const filtered = pesertaData.filter((row) => {
+    const usia = parseInt(row["Usia"]);
+    const rt = row["RT"];
+    const lomba = row["Lomba yang diikuti"];
+
+    // Cek usia
+    let usiaValid = true;
+    if (usiaFilter === "3-6") usiaValid = usia >= 3 && usia <= 6;
+    if (usiaFilter === "7-9") usiaValid = usia >= 7 && usia <= 9;
+    if (usiaFilter === "10-12") usiaValid = usia >= 10 && usia <= 12;
+
+    const rtValid = rtFilter === "" || rt === rtFilter;
+    const lombaValid = lombaFilter === "" || lomba === lombaFilter;
+
+    return usiaValid && rtValid && lombaValid;
+  });
+
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const start = (currentPage - 1) * perPage;
+  const end = start + perPage;
+  const pageData = filtered.slice(start, end);
+
+  pageData.forEach((row, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${start + i + 1}</td>
+      <td>${row["Nama lengkap"] || "-"}</td>
+      <td>${row["Usia"] || "-"}</td>
+      <td>${row["RT"] || "-"}</td>
+      <td>${row["Lomba yang diikuti"] || "-"}</td>
+      <td>${row["Nomor telepon"] || "-"}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("totalPeserta").innerText = pesertaData.length;
+  document.getElementById("pageInfo").innerText = `Halaman ${currentPage} dari ${totalPages}`;
+  document.getElementById("prevBtn").disabled = currentPage === 1;
+  document.getElementById("nextBtn").disabled = currentPage === totalPages;
+}
+
+// Event listener filter
+["filterUsia", "filterRT", "filterLomba"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => {
+    currentPage = 1; // reset ke halaman pertama
+    renderPage();
+  });
+});
+
+document.getElementById("prevBtn").addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderPage();
+  }
+});
+document.getElementById("nextBtn").addEventListener("click", () => {
+  const totalPages = Math.ceil(pesertaData.length / perPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderPage();
+  }
+});
+  }
 </script>
 </body>
 </html>
