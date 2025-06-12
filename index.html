@@ -113,6 +113,7 @@
                 <label class="form-label">RT</label>
                 <select name="entry.453818273" class="form-select" required>
                     <option value="">-- Pilih RT --</option>
+                    <option value="RT 01">RT 01</option>
                     <option value="RT 02">RT 02</option>
                     <option value="RT 03">RT 03</option>
                     <option value="RT 04">RT 04</option>
@@ -135,8 +136,14 @@
 
             <div class="mb-3">
                 <label class="form-label">No HP (Opsional)</label>
-                <input type="text" name="entry.1311942718" class="form-control" pattern="^\d{10,14}$" minlength="10"
-                       maxlength="14" placeholder="Contoh: 081234567890">
+                <input type="text" name="entry.1311942718"
+                       class="form-control" pattern="^\d{10,14}$"
+                       minlength="10"
+                       maxlength="14"
+                       placeholder="Contoh: 081234567890"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                       inputmode="numeric"
+                >
             </div>
 
             <button type="submit" class="btn btn-danger w-100 fw-bold">Kirim Pendaftaran</button>
@@ -158,20 +165,27 @@
         <h5 class="text-danger mb-3">Total Peserta Terdaftar: <span id="totalPeserta">...</span></h5>
 
 <!--        sorting -->
+        <div class="mb-3">
+            <label for="searchNama" class="form-label">Cari Nama</label>
+            <input type="text" id="searchNama" class="form-control" placeholder="Masukkan nama peserta...">
+        </div>
+
         <div class="row mb-3">
             <div class="col-md-4">
                 <label>Filter Usia:</label>
                 <select id="filterUsia" class="form-select">
                     <option value="">Semua</option>
-                    <option value="3-6">3–6 tahun</option>
-                    <option value="7-9">7–9 tahun</option>
-                    <option value="10-12">10–12 tahun</option>
+                    <option value="2-4">2–4 tahun</option>
+                    <option value="5-7">5–7 tahun</option>
+                    <option value="8-12">8–12 tahun</option>
+                    <option value="13-17">13–17 tahun</option>
                 </select>
             </div>
             <div class="col-md-4">
                 <label>Filter RT:</label>
                 <select id="filterRT" class="form-select">
                     <option value="">Semua</option>
+                    <option value="RT 01">RT 01</option>
                     <option value="RT 02">RT 02</option>
                     <option value="RT 03">RT 03</option>
                     <option value="RT 04">RT 04</option>
@@ -292,6 +306,8 @@
   const usiaFilter = document.getElementById("filterUsia").value;
   const rtFilter = document.getElementById("filterRT").value;
   const lombaFilter = document.getElementById("filterLomba").value;
+  const searchNama = document.getElementById("searchNama").value.toLowerCase(); // baru
+
   document.getElementById("totalPeserta").innerText = pesertaData.length;
 
   // Filter peserta sesuai kriteria
@@ -299,17 +315,22 @@
     const usia = parseInt(row["Usia"]);
     const rt = row["RT"];
     const lomba = row["Lomba yang diikuti"];
+    const nama = row["Nama lengkap"]?.toLowerCase() || "";
+
+      // Filter nama
+    const namaValid = nama.includes(searchNama);
 
     // Cek usia
     let usiaValid = true;
-    if (usiaFilter === "3-6") usiaValid = usia >= 3 && usia <= 6;
-    if (usiaFilter === "7-9") usiaValid = usia >= 7 && usia <= 9;
-    if (usiaFilter === "10-12") usiaValid = usia >= 10 && usia <= 12;
+    if (usiaFilter === "2-4") usiaValid = usia >= 2 && usia <= 4;
+    if (usiaFilter === "5-7") usiaValid = usia >= 5 && usia <= 7;
+    if (usiaFilter === "8-12") usiaValid = usia >= 8 && usia <= 12;
+    if (usiaFilter === "13-17") usiaValid = usia >= 13 && usia <= 17;
 
     const rtValid = rtFilter === "" || rt === rtFilter;
     const lombaValid = lombaFilter === "" || lomba === lombaFilter;
 
-    return usiaValid && rtValid && lombaValid;
+    return usiaValid && rtValid && lombaValid && namaValid;
   });
 
   const totalPages = Math.ceil(filtered.length / perPage);
@@ -329,33 +350,39 @@
     `;
     tbody.appendChild(tr);
   });
-  document.getElementById("totalPeserta").innerText = pesertaData.length;
+  document.getElementById("totalPeserta").innerText = filtered.length;
   document.getElementById("pageInfo").innerText = `Halaman ${currentPage} dari ${totalPages}`;
   document.getElementById("prevBtn").disabled = currentPage === 1;
   document.getElementById("nextBtn").disabled = currentPage === totalPages;
 }
 
-// Event listener filter
-["filterUsia", "filterRT", "filterLomba"].forEach(id => {
-  document.getElementById(id).addEventListener("change", () => {
-    currentPage = 1; // reset ke halaman pertama
-    renderPage();
-  });
-});
+    // Event listener filter
+    ["filterUsia", "filterRT", "filterLomba"].forEach(id => {
+      document.getElementById(id).addEventListener("change", () => {
+        currentPage = 1; // reset ke halaman pertama
+        renderPage();
+      });
+    });
 
-document.getElementById("prevBtn").addEventListener("click", () => {
-  if (currentPage > 1) {
-    currentPage--;
-    renderPage();
-  }
-});
-document.getElementById("nextBtn").addEventListener("click", () => {
-  const totalPages = Math.ceil(pesertaData.length / perPage);
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderPage();
-  }
-});
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage();
+      }
+    });
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      const totalPages = Math.ceil(pesertaData.length / perPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPage();
+      }
+    });
+
+    document.getElementById("searchNama").addEventListener("input", () => {
+      currentPage = 1;
+      renderPage();
+    });
+
   }
 </script>
 </body>
